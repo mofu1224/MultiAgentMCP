@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, copyFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { resolveCommand, runProcess } from "../src/proc.mjs";
 
 test("Windowsでは拡張子よりPATHのディレクトリ順を優先する", { skip: process.platform !== "win32" }, () => {
@@ -69,7 +69,7 @@ test("npmのcmdラッパーはシェルを介さずJSON・引用符・環境変�
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test("取消は実際に起動した子孫プロセスも終了し、abort済みの起動を放置しない", async () => {
+test("取消は実際に起動した子孫プロセスも終了する", async () => {
   const root = mkdtempSync(path.join(tmpdir(), "mamcp-tree-"));
   const ready = path.join(root, "ready.json");
   const ctrl = new AbortController();
@@ -84,13 +84,24 @@ test("取消は実際に起動した子孫プロセスも終了し、abort済み
     for (let i = 0; i < 100 && !existsSync(ready); i++) await new Promise(resolve => setTimeout(resolve, 10));
     assert.ok(existsSync(ready));
     const childPid = Number(readFileSync(ready, "utf8"));
+    assert.doesNotThrow(() => process.kill(childPid, 0), "取消前には子孫が存在する");
     ctrl.abort();
     const result = await running;
     assert.equal(result.aborted, true);
     let alive = true;
-    try { process.kill(childPid, 0); } catch { alive = false; }
+    // 親のcloseは子孫の終了・OSによる回収完了を保証しない。PID消滅を期限付きで確認する。
+    const deadline = Date.now() + 5000;
+    do {
+      try { process.kill(childPid, 0); }
+      catch (error) {
+        if (error.code !== "ESRCH") throw error;
+        alive = false;
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 10));
+    } while (Date.now() < deadline);
     const state = alive && process.platform !== "win32"
-      ? execFileSync("ps", ["-o", "pid=,ppid=,pgid=,stat=", "-p", String(childPid)], { encoding: "utf8" }).trim()
+      ? spawnSync("ps", ["-o", "pid=,ppid=,pgid=,stat=", "-p", String(childPid)], { encoding: "utf8" }).stdout?.trim()
       : "";
     assert.equal(alive, false, `取消後の子孫プロセス状態: ${state}`);
   } finally { ctrl.abort(); rmSync(root, { recursive: true, force: true }); }
