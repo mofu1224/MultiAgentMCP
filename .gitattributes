@@ -1,0 +1,4 @@
+# Windows・macOSの両方で同じ内容にする。シェル起動ファイルの改行はOSに合わせて固定する。
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf

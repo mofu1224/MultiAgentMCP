@@ -1,0 +1,19 @@
+{
+  "providers": {
+    "codex": { "type": "codex-cli" },
+    "claude": { "type": "claude-cli" },
+    "openrouter": { "type": "openai-compatible", "enabled": false, "baseUrl": "https://openrouter.ai/api/v1", "apiKeyEnv": "OPENROUTER_API_KEY", "effortParam": null },
+    "ollama": { "type": "openai-compatible", "enabled": false, "baseUrl": "http://localhost:11434/v1", "effortParam": null }
+  },
+  "policy": {
+    "maxDepth": 1,
+    "maxConcurrent": 3,
+    "maxCallsPerRoot": null,
+    "allowedPermissions": ["full-access", "read-only", "workspace-write"],
+    "defaultPermission": "full-access",
+    "maxLiveSessions": 6,
+    "maxRetainedJobs": 100,
+    "waitTimeouts": { "minMs": 100, "defaultMs": 30000, "maxMs": 300000 },
+    "allowedCwdRoots": []
+  }
+}

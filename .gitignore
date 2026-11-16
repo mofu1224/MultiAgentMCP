@@ -1,0 +1,26 @@
+node_modules/
+data/
+config.json
+allowlist.json
+.env
+.env.*
+!.env.example
+*.log
+*.jsonl
+*.tgz
+coverage/
+.DS_Store
+Thumbs.db
+.backup/
+.research/
+release.json
+deploy.local.json
+dist/
+# 制作・引継ぎ記録は公開ソースに含めない。
+HANDOFF*.md
+IMPLEMENTATION.md
+WORKLOG*.md
+制作記録*.md
+作業記録*.md
+引継ぎ*.md
+引き継ぎ*.md

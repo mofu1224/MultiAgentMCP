@@ -1,0 +1,33 @@
+{
+  "name": "multiagentmcp",
+  "version": "1.0.0",
+  "description": "Codex/Claude Codeなどのサブエージェントを親エージェントから制御するstdio MCPサーバー",
+  "main": "src/server.mjs",
+  "scripts": {
+    "test": "node --test --test-timeout=60000 test/*.test.mjs",
+    "test:smoke": "node test/smoke.mjs",
+    "check:release": "node tools/check-release.mjs",
+    "verify:install": "node tools/verify-install.mjs",
+    "start": "node src/server.mjs"
+  },
+  "keywords": ["mcp", "multi-agent", "codex", "claude", "stdio"],
+  "author": "mofu1224",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=24" },
+  "type": "module",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mofu1224/MultiAgentMCP.git"
+  },
+  "homepage": "https://github.com/mofu1224/MultiAgentMCP#readme",
+  "bugs": {
+    "url": "https://github.com/mofu1224/MultiAgentMCP/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@opencode/client": "2.3.0",
+    "ajv": "^8.20.0",
+    "zod": "^4.6.7"
+  }
+}

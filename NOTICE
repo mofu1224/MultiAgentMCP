@@ -1,0 +1,10 @@
+MultiAgentMCP
+Copyright 2026 mofu1224
+
+This product includes modified Node.js ports of child lifecycle control
+from OpenAI Codex, commit b1573f102413e96a6481087922bf425231222dee.
+Copyright 2025 OpenAI.
+
+The affected files, upstream paths, and changes are documented in
+src/child-control/README.md and the headers of the ported files.
+The original upstream LICENSE and NOTICE are retained in third_party/codex/.
