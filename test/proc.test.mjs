@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, copyFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { resolveCommand, runProcess } from "../src/proc.mjs";
 
 test("Windowsでは拡張子よりPATHのディレクトリ順を優先する", { skip: process.platform !== "win32" }, () => {
@@ -88,7 +89,10 @@ test("取消は実際に起動した子孫プロセスも終了し、abort済み
     assert.equal(result.aborted, true);
     let alive = true;
     try { process.kill(childPid, 0); } catch { alive = false; }
-    assert.equal(alive, false);
+    const state = alive && process.platform !== "win32"
+      ? execFileSync("ps", ["-o", "pid=,ppid=,pgid=,stat=", "-p", String(childPid)], { encoding: "utf8" }).trim()
+      : "";
+    assert.equal(alive, false, `取消後の子孫プロセス状態: ${state}`);
   } finally { ctrl.abort(); rmSync(root, { recursive: true, force: true }); }
 });
 
