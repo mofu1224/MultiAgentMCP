@@ -1,3 +1,6 @@
+---
+type: guide
+---
 # MultiAgentMCP
 
 [English](README.en.md) · [変更履歴](CHANGELOG.md) · [セキュリティ](SECURITY.md) · [開発・リリース](CONTRIBUTING.md)
@@ -67,6 +70,8 @@ cd MultiAgentMCP
 ```
 
 クローン先で上記の4つのコマンドを実行した後、`node src/select-models.mjs` と `node src/register-hosts.mjs` を実行する。Windowsでは `select-models.cmd` / `register-hosts.cmd`、macOSでは同名の `.command` も使える。
+
+許可状況を見るだけなら `node src/select-models.mjs --show` を使う。対話画面で `1,3-4` のように番号を入力すると、そのプロバイダーの表示中のモデルは選んだものだけが許可される。既存の選択を残すには Enter を押す。続くEffortの選択でも、Enterで既存の指定を維持できる。
 
 通常起動は `npm start` または `node src/server.mjs`。stdio MCPサーバーのため、単体起動では画面や対話メニューは出ない。許可リスト・設定・`data/` は配置先に作られるので公開・配布しない。
 

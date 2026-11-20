@@ -1,3 +1,6 @@
+---
+type: guide
+---
 # MultiAgentMCP
 
 [日本語（詳細仕様）](README.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md)
@@ -66,6 +69,8 @@ node src/register-hosts.mjs
 The model selector writes `allowlist.json`. **No models are initially approved.** Registration updates the `multi-agent` entry in installed Codex, Claude Code, and OpenCode hosts; missing host CLIs are skipped. Reconnect the host afterward. VS Code registration is opt-in with `--vscode`.
 
 Windows users can use `select-models.cmd` and `register-hosts.cmd`; macOS users can use the corresponding `.command` launchers.
+
+Use `node src/select-models.mjs --show` to inspect approvals without saving. In interactive mode, entering `1,3-4` replaces the selection for the provider's visible models. Press Enter to keep the current selection; Enter also preserves existing effort settings at the next prompt.
 
 Alternatively, configure your MCP host manually with:
 

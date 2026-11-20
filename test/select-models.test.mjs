@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { ROOT } from "../src/config.mjs";
 
-function setup(t) {
+function setup(t, chosenEfforts = ["low", "medium"]) {
   const dir = mkdtempSync(path.join(tmpdir(), "mamcp-select-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const fixture = path.join(dir, "provider.mjs");
@@ -26,7 +26,7 @@ function setup(t) {
     dataDir: path.join(dir, "data"),
   }));
   const initial = JSON.stringify({ providers: { demo: {
-    models: { chosen: { efforts: ["low", "medium"] }, "hidden-model": { efforts: "*" }, retired: { efforts: "*" } },
+    models: { chosen: { efforts: chosenEfforts }, "hidden-model": { efforts: "*" }, retired: { efforts: "*" }, "known-model": { efforts: ["low"] } },
     reviewed: ["chosen", "known-model"],
   } } });
   writeFileSync(allow, initial);
@@ -43,6 +43,7 @@ function setup(t) {
       return result;
     },
     assertUnchanged: () => assert.equal(readFileSync(allow, "utf8"), initial),
+    savedModels: () => JSON.parse(readFileSync(allow, "utf8")).providers.demo.models,
   };
 }
 
@@ -50,14 +51,24 @@ test("--show はモデルを1行ずつ表示し、許可済みと新着を区別
   const { run, assertUnchanged } = setup(t);
   const { status, stdout, stderr } = run(["--show"]);
   assert.equal(status, 0, stderr);
-  assert.match(stdout, /demo：3モデル \/ 許可済み 1/);
+  assert.match(stdout, /demo：3モデル \/ 許可済み 2/);
   assert.match(stdout, /^\s*1\. \[許可済\] chosen — low, medium\r?$/m);
   assert.match(stdout, /^\s*2\. \[未許可\] new-model \[新着\]\r?$/m);
-  assert.match(stdout, /^\s*3\. \[未許可\] known-model\r?$/m);
+  assert.match(stdout, /^\s*3\. \[許可済\] known-model — low\r?$/m);
   assert.match(stdout, /一覧に無いモデル: retired/);
   assert.match(stdout, /非表示モデル（変更せず保持）: hidden-model/);
   assert.doesNotMatch(stdout, /Long provider description|対応Effort:|入力 >|何かキー|Press any key/);
   assertUnchanged();
+});
+
+test("Enterで保存しても全Effort指定や候補未取得時の制限を変更しない", t => {
+  const { run, savedModels } = setup(t, "*");
+  const result = run([], "\n\n");
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(savedModels(), {
+    chosen: { efforts: "*" }, "hidden-model": { efforts: "*" },
+    retired: { efforts: "*" }, "known-model": { efforts: ["low"] },
+  });
 });
 
 test("対話では選んだモデルだけにEffortの候補と現在値を示し、EOFでは保存しない", t => {

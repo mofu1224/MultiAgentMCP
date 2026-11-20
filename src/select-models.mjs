@@ -100,13 +100,12 @@ for (const p of await reg.describeProviders()) {
   const next = {};
   for (const m of chosen) {
     const cur = pa.models[m.id];
-    if (!m.efforts?.length) { next[m.id] = { efforts: "*" }; continue; }
-    const curList = cur ? (cur.efforts === "*" ? m.efforts : cur.efforts) : null;
+    if (!m.efforts?.length) { next[m.id] = cur ?? { efforts: "*" }; continue; }
     console.log(`\n    ${m.id} のEffort（現在: ${cur ? effortLabel(cur.efforts) : "未設定"}）`);
     console.log(`    ${m.efforts.map((e, i) => `${i + 1}=${e}`).join("  ")}`);
-    console.log(`    許可する番号を入力（Enter: ${curList ? effortLabel(curList) : "全候補"}）`);
+    console.log(`    許可する番号を入力（Enter: ${cur ? effortLabel(cur.efforts) : "全候補"}）`);
     const ep = await ask("    入力 > ", m.efforts.length);
-    next[m.id] = { efforts: ep === null ? curList || [...m.efforts] : ep.map((i) => m.efforts[i]) };
+    next[m.id] = { efforts: ep === null ? cur?.efforts ?? [...m.efforts] : ep.map((i) => m.efforts[i]) };
   }
   if (gone.length && pick === null) for (const id of gone) next[id] = pa.models[id]; // 現状維持時は一覧外も保持
   // 画面に出さない非表示モデルの許可は、この画面で変更できないため常に保持する。
